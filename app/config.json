@@ -1,6 +1,9 @@
 {
   "resources": {
     "models": {
+      "saturn" :{
+       "path" : "saturn/saturn_rings.obj"
+      }
     }
   },
   "window": {
