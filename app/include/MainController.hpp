@@ -11,9 +11,11 @@ namespace app {
 class MainController final : public engine::core::Controller {
     void initialize() override;
     bool loop() override;
-    void draw_saturn();
+    static void draw_saturn();
     void begin_draw() override;
     void end_draw() override;
+    void update_camera();
+    void update() override;
     void draw() override;
 
 public:
