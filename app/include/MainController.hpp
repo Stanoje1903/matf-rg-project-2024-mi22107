@@ -9,14 +9,22 @@
 namespace app {
 
 class MainController final : public engine::core::Controller {
+
     void initialize() override;
+
     bool loop() override;
+
     static void draw_saturn();
+
     void begin_draw() override;
-    void end_draw() override;
-    void update_camera();
-    void update() override;
+
     void draw() override;
+
+    void end_draw() override;
+
+    void update() override;
+
+    static void update_camera();
 
 public:
     std::string_view name() const override {
