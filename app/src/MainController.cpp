@@ -37,10 +37,10 @@ bool MainController::loop() {
     }
     return true;
 }
-void MainController::draw_blue_star() {
+void MainController::draw_jupiter() {
     auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
-    engine::resources::Model *blue_star = resources->model("blue_star");
+    engine::resources::Model *jupiter = resources->model("jupiter");
     engine::resources::Shader *shader = resources->shader("basic");
     shader->use();
     shader->set_mat4("projection", graphics->projection_matrix());
@@ -49,7 +49,21 @@ void MainController::draw_blue_star() {
     model = glm::translate(model, glm::vec3(0.0f, 0.0f, -3.0f));
     model = glm::scale(model, glm::vec3(0.3f));
     shader->set_mat4("model", model);
-    blue_star->draw(shader);
+    jupiter->draw(shader);
+}
+void MainController::draw_saturn() {
+    auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
+    auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
+    engine::resources::Model *saturn = resources->model("saturn");
+    engine::resources::Shader *shader = resources->shader("basic");
+    shader->use();
+    shader->set_mat4("projection", graphics->projection_matrix());
+    shader->set_mat4("view", graphics->camera()->view_matrix());
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(2.0f, 0.0f, -3.0f));
+    model = glm::scale(model, glm::vec3(0.001f));
+    shader->set_mat4("model", model);
+    saturn->draw(shader);
 }
 void MainController::draw_skybox() {
     auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
@@ -64,7 +78,8 @@ void MainController::begin_draw() {
 }
 
 void MainController::draw() {
-    draw_blue_star();
+    draw_jupiter();
+    draw_saturn();
     draw_skybox();
 }
 

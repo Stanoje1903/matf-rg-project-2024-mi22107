@@ -14,7 +14,9 @@ class MainController final : public engine::core::Controller {
 
     bool loop() override;
 
-    static void draw_blue_star();
+    static void draw_jupiter();
+
+    static void draw_saturn();
 
     static void draw_skybox();
 

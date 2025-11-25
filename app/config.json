@@ -1,8 +1,11 @@
 {
   "resources": {
     "models": {
-      "blue_star" : {
-        "path" : "blue_star/star.obj"
+      "saturn" :{
+       "path" : "saturn/saturn.obj"
+      },
+      "jupiter" : {
+        "path" : "jupiter/jupiter.obj"
       }
     }
   },
