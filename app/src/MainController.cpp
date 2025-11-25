@@ -37,10 +37,10 @@ bool MainController::loop() {
     }
     return true;
 }
-void MainController::draw_saturn() {
+void MainController::draw_blue_star() {
     auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
-    engine::resources::Model *saturn = resources->model("saturn");
+    engine::resources::Model *blue_star = resources->model("blue_star");
     engine::resources::Shader *shader = resources->shader("basic");
     shader->use();
     shader->set_mat4("projection", graphics->projection_matrix());
@@ -49,7 +49,7 @@ void MainController::draw_saturn() {
     model = glm::translate(model, glm::vec3(0.0f, 0.0f, -3.0f));
     model = glm::scale(model, glm::vec3(0.3f));
     shader->set_mat4("model", model);
-    saturn->draw(shader);
+    blue_star->draw(shader);
 }
 void MainController::draw_skybox() {
     auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
@@ -64,7 +64,7 @@ void MainController::begin_draw() {
 }
 
 void MainController::draw() {
-    draw_saturn();
+    draw_blue_star();
     draw_skybox();
 }
 
@@ -79,7 +79,7 @@ void MainController::update() {
 
 void MainController::update_camera() {
     auto gui_controller = engine::core::Controller::get<GuiController>();
-    if (!gui_controller->is_enabled()) {
+    if (gui_controller->is_enabled()) {
         return;
     }
     auto platform = engine::core::Controller::get<engine::platform::PlatformController>();

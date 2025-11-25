@@ -1,8 +1,8 @@
 {
   "resources": {
     "models": {
-      "saturn" :{
-       "path" : "saturn/saturn_rings.obj"
+      "blue_star" : {
+        "path" : "blue_star/star.obj"
       }
     }
   },
