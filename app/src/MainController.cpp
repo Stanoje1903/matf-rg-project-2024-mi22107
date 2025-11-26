@@ -38,33 +38,97 @@ bool MainController::loop() {
     return true;
 }
 void MainController::draw_jupiter() {
+    static float jupiterRotation = 0.0f;
     auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
     engine::resources::Model *jupiter = resources->model("jupiter");
-    engine::resources::Shader *shader = resources->shader("basic");
+    engine::resources::Shader *shader = resources->shader("multiple_lights");
     shader->use();
-    shader->set_mat4("projection", graphics->projection_matrix());
-    shader->set_mat4("view", graphics->camera()->view_matrix());
+
+    float dt = engine::core::Controller::get<engine::platform::PlatformController>()->dt();
+    jupiterRotation += dt * 5.0f;
+    if (jupiterRotation > 360.0f) jupiterRotation -= 360.0f;
+
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(0.0f, 0.0f, -3.0f));
+    model = glm::rotate(model, glm::radians(jupiterRotation), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::scale(model, glm::vec3(0.3f));
-    shader->set_mat4("model", model);
-    jupiter->draw(shader);
-}
-void MainController::draw_saturn() {
-    auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
-    auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
-    engine::resources::Model *saturn = resources->model("saturn");
-    engine::resources::Shader *shader = resources->shader("basic");
-    shader->use();
+
+    shader->set_vec3("viewPos", graphics->camera()->Position);
+
+    shader->set_vec3("dirLight.direction", glm::vec3(-0.3f, -1.0f, -0.3f));
+    shader->set_vec3("dirLight.ambient", glm::vec3(0.05f));
+    shader->set_vec3("dirLight.diffuse", glm::vec3(1.0f));
+    shader->set_vec3("dirLight.specular", glm::vec3(0.5f));
+
+    shader->set_vec3("pointLight.position", glm::vec3(0.0f, 0.0f, -3.0f));
+    shader->set_vec3("pointLight.ambient", glm::vec3(0.05f));
+    shader->set_vec3("pointLight.diffuse", glm::vec3(0.05f));
+    shader->set_vec3("pointLight.specular", glm::vec3(0.05f));
+    shader->set_float("pointLight.constant", 1.0f);
+    shader->set_float("pointLight.linear", 0.09f);
+    shader->set_float("pointLight.quadratic", 0.032f);
+
+    shader->set_float("material.shininess", 32.0f);
+
     shader->set_mat4("projection", graphics->projection_matrix());
     shader->set_mat4("view", graphics->camera()->view_matrix());
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(2.0f, 0.0f, -3.0f));
-    model = glm::scale(model, glm::vec3(0.001f));
     shader->set_mat4("model", model);
+
+    jupiter->draw(shader);
+}
+
+void MainController::draw_saturn() {
+    static float saturnRotation = 0.0f;
+    auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
+    auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
+
+    engine::resources::Model* saturn = resources->model("saturn");
+    engine::resources::Shader* shader = resources->shader("multiple_lights");
+    shader->use();
+
+    auto camera = graphics->camera();
+    shader->set_vec3("viewPos", camera->Position);
+
+    shader->set_vec3("dirLight.direction", glm::vec3(-0.3f, -1.0f, -0.3f));
+    shader->set_vec3("dirLight.ambient",  glm::vec3(0.05f));
+    shader->set_vec3("dirLight.diffuse",  glm::vec3(0.8f));
+    shader->set_vec3("dirLight.specular", glm::vec3(1.0f));
+
+    glm::vec3 saturnPos = glm::vec3(2.0f, 0.0f, -3.0f);
+
+    shader->set_vec3("pointLight.position", saturnPos);
+    shader->set_vec3("pointLight.ambient",  glm::vec3(0.05f));
+    shader->set_vec3("pointLight.diffuse",  glm::vec3(0.05f));
+    shader->set_vec3("pointLight.specular", glm::vec3(0.1f));
+    shader->set_float("pointLight.constant", 1.0f);
+    shader->set_float("pointLight.linear", 0.09f);
+    shader->set_float("pointLight.quadratic", 0.032f);
+
+    float dt = engine::core::Controller::get<engine::platform::PlatformController>()->dt();
+    saturnRotation += dt * 5.0f; // brzina rotacije, možeš da menjaš
+    if (saturnRotation > 360.0f) saturnRotation -= 360.0f;
+
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, saturnPos);
+    auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
+    model = glm::rotate(model, glm::radians(saturnRotation), glm::vec3(0.0f, 0.0f, 1.0f));
+    model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.001f));
+
+    shader->set_mat4("projection", graphics->projection_matrix());
+    shader->set_mat4("view", graphics->camera()->view_matrix());
+    shader->set_mat4("model", model);
+
+    shader->set_int("material.diffuse", 0);
+    shader->set_int("material.specular", 1);
+    shader->set_float("material.shininess", 32.0f);
+
     saturn->draw(shader);
 }
+
+
+
 void MainController::draw_skybox() {
     auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
     auto skybox = resources->skybox("night_skybox");
