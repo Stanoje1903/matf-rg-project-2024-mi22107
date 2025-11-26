@@ -91,30 +91,29 @@ void MainController::draw_saturn() {
     shader->set_vec3("viewPos", camera->Position);
 
     shader->set_vec3("dirLight.direction", glm::vec3(-0.3f, -1.0f, -0.3f));
-    shader->set_vec3("dirLight.ambient",  glm::vec3(0.05f));
-    shader->set_vec3("dirLight.diffuse",  glm::vec3(0.8f));
+    shader->set_vec3("dirLight.ambient",  glm::vec3(0.02f));
+    shader->set_vec3("dirLight.diffuse",  glm::vec3(0.7f));
     shader->set_vec3("dirLight.specular", glm::vec3(1.0f));
 
-    glm::vec3 saturnPos = glm::vec3(2.0f, 0.0f, -3.0f);
-
-    shader->set_vec3("pointLight.position", saturnPos);
-    shader->set_vec3("pointLight.ambient",  glm::vec3(0.05f));
-    shader->set_vec3("pointLight.diffuse",  glm::vec3(0.05f));
-    shader->set_vec3("pointLight.specular", glm::vec3(0.1f));
-    shader->set_float("pointLight.constant", 1.0f);
-    shader->set_float("pointLight.linear", 0.09f);
-    shader->set_float("pointLight.quadratic", 0.032f);
-
+    glm::vec3 jupiterPos = glm::vec3(0.0f, 0.0f, -3.0f);
     float dt = engine::core::Controller::get<engine::platform::PlatformController>()->dt();
-    saturnRotation += dt * 5.0f; // brzina rotacije, možeš da menjaš
+    saturnRotation += dt * 20.0f;
     if (saturnRotation > 360.0f) saturnRotation -= 360.0f;
 
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, saturnPos);
-    auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
-    model = glm::rotate(model, glm::radians(saturnRotation), glm::vec3(0.0f, 0.0f, 1.0f));
+    model = glm::translate(model, jupiterPos);
+    model = glm::rotate(model, glm::radians(saturnRotation), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
     model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     model = glm::scale(model, glm::vec3(0.001f));
+
+    shader->set_vec3("pointLight.position", glm::vec3(model[3]));
+    shader->set_vec3("pointLight.ambient",  glm::vec3(0.01f));
+    shader->set_vec3("pointLight.diffuse",  glm::vec3(0.01f));
+    shader->set_vec3("pointLight.specular", glm::vec3(0.02f));
+    shader->set_float("pointLight.constant", 1.0f);
+    shader->set_float("pointLight.linear", 0.09f);
+    shader->set_float("pointLight.quadratic", 0.032f);
 
     shader->set_mat4("projection", graphics->projection_matrix());
     shader->set_mat4("view", graphics->camera()->view_matrix());
@@ -126,9 +125,6 @@ void MainController::draw_saturn() {
 
     saturn->draw(shader);
 }
-
-
-
 void MainController::draw_skybox() {
     auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
     auto skybox = resources->skybox("night_skybox");
