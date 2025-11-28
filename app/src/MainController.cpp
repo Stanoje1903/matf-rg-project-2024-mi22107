@@ -83,16 +83,23 @@ void MainController::draw_saturn() {
     auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
-    engine::resources::Model* saturn = resources->model("saturn");
-    engine::resources::Shader* shader = resources->shader("multiple_lights");
+    auto gui = engine::core::Controller::get<GuiController>();
+    if (!gui->getSaturnVisible())
+        return;
+
+
+    engine::resources::Model *saturn = resources->model("saturn");
+    engine::resources::Shader *shader = resources->shader("multiple_lights");
     shader->use();
+
+    shader->set_float("dirLightIntensity", gui->getDirLightIntensity());
 
     auto camera = graphics->camera();
     shader->set_vec3("viewPos", camera->Position);
 
     shader->set_vec3("dirLight.direction", glm::vec3(-0.3f, -1.0f, -0.3f));
-    shader->set_vec3("dirLight.ambient",  glm::vec3(0.02f));
-    shader->set_vec3("dirLight.diffuse",  glm::vec3(0.7f));
+    shader->set_vec3("dirLight.ambient", glm::vec3(0.02f));
+    shader->set_vec3("dirLight.diffuse", glm::vec3(0.7f));
     shader->set_vec3("dirLight.specular", glm::vec3(1.0f));
 
     glm::vec3 jupiterPos = glm::vec3(0.0f, 0.0f, -3.0f);
@@ -108,8 +115,8 @@ void MainController::draw_saturn() {
     model = glm::scale(model, glm::vec3(0.001f));
 
     shader->set_vec3("pointLight.position", glm::vec3(model[3]));
-    shader->set_vec3("pointLight.ambient",  glm::vec3(0.01f));
-    shader->set_vec3("pointLight.diffuse",  glm::vec3(0.01f));
+    shader->set_vec3("pointLight.ambient", glm::vec3(0.01f));
+    shader->set_vec3("pointLight.diffuse", glm::vec3(0.01f));
     shader->set_vec3("pointLight.specular", glm::vec3(0.02f));
     shader->set_float("pointLight.constant", 1.0f);
     shader->set_float("pointLight.linear", 0.09f);
@@ -150,7 +157,29 @@ void MainController::end_draw() {
 
 void MainController::update() {
     update_camera();
+
+    auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
+    auto gui = engine::core::Controller::get<GuiController>();
+
+    if (platform->key(engine::platform::KeyId::KEY_R).state() == engine::platform::Key::State::JustPressed) {
+        if (!gui->getSaturnToggleRequested()) {
+            gui->setSaturnToggleRequested(true);
+            gui->setSaturnToggleTimer(0.0f);
+        }
+    }
+
+    if (gui->getSaturnToggleRequested()) {
+        float dt = platform->dt();
+        gui->setSaturnToggleTimer(gui->getSaturnToggleTimer() + dt);
+
+        if (gui->getSaturnToggleTimer() >= 3.0f) {
+            gui->setSaturnVisible(!gui->getSaturnVisible());
+            gui->setSaturnToggleRequested(false);
+            gui->setSaturnToggleTimer(0.0f);
+        }
+    }
 }
+
 
 void MainController::update_camera() {
     auto gui_controller = engine::core::Controller::get<GuiController>();

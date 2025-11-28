@@ -32,7 +32,7 @@ class MainController final : public engine::core::Controller {
 
 public:
     std::string_view name() const override {
-    return "app::MainController";
+        return "app::MainController";
     }
 };
 
