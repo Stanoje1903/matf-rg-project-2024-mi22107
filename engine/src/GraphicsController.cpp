@@ -99,7 +99,6 @@ void GraphicsController::initialize() {
     m_ortho_params.Far = 100.0f;
     platform->register_platform_event_observer(
             std::make_unique<GraphicsPlatformEventObserver>(this));
-    initialize_bloom();
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();

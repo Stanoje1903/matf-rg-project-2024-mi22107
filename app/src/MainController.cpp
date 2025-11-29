@@ -172,7 +172,6 @@ void MainController::draw_skybox() {
 void MainController::begin_draw() {
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
     graphics->bind_msaa_fbo();
-    graphics->bind_hdr_fbo();
     engine::graphics::OpenGL::clear_buffers();
 }
 
@@ -187,8 +186,6 @@ void MainController::end_draw() {
     auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
     graphics->resolve_msaa_and_present();
-    graphics->unbind_hdr_fbo();
-    graphics->apply_bloom();
     platform->swap_buffers();
 }
 
