@@ -159,6 +159,8 @@ public:
 
     void resolve_msaa_and_present();
 
+    void resize_msaa();
+
 private:
     /**
     * @brief Initializes OpenGL, ImGUI, and projection matrix params;

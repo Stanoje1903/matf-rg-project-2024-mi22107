@@ -48,6 +48,32 @@ void GraphicsController::resolve_msaa_and_present() {
         GL_NEAREST
     );
 }
+void GraphicsController::resize_msaa() {
+    auto platform = engine::core::Controller::get<platform::PlatformController>();
+    int width = platform->window()->width();
+    int height = platform->window()->height();
+
+    if (m_msaaFBO != 0) {
+        glDeleteFramebuffers(1, &m_msaaFBO);
+        glDeleteTextures(1, &m_msaaColor);
+        glDeleteRenderbuffers(1, &m_msaaDepth);
+    }
+
+    if (m_resolveFBO != 0) {
+        glDeleteFramebuffers(1, &m_resolveFBO);
+        glDeleteTextures(1, &m_resolveColor);
+    }
+
+    m_msaaFBO = OpenGL::create_msaa_fbo(
+        m_msaaSamples, width, height,
+        m_msaaColor, m_msaaDepth
+    );
+
+    m_resolveFBO = OpenGL::create_resolve_fbo(
+        width, height,
+        m_resolveColor
+    );
+}
 void GraphicsController::initialize() {
     const int opengl_initialized = gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     RG_GUARANTEE(opengl_initialized, "OpenGL failed to init!");
@@ -73,6 +99,7 @@ void GraphicsController::initialize() {
     m_ortho_params.Far = 100.0f;
     platform->register_platform_event_observer(
             std::make_unique<GraphicsPlatformEventObserver>(this));
+    initialize_bloom();
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
