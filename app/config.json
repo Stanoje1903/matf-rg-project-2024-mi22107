@@ -6,6 +6,9 @@
       },
       "jupiter" : {
         "path" : "jupiter/jupiter.obj"
+      },
+      "sun" :{
+        "path" : "sun/Sun.obj"
       }
     }
   },

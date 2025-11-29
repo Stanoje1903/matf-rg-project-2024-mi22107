@@ -29,7 +29,7 @@ ESC -> TERMINATING PROGRAM
 
 [ ] Frame-buffers with post-processing   
 [ ] Instancing  
-[ ] Off-screen Anti-Aliasing  
+[X] Off-screen Anti-Aliasing  
 [ ] Parallax Mapping
 
 ### Group B:

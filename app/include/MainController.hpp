@@ -18,6 +18,8 @@ class MainController final : public engine::core::Controller {
 
     static void draw_saturn();
 
+    static void draw_sun();
+
     static void draw_skybox();
 
     void begin_draw() override;

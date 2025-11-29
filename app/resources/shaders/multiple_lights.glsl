@@ -58,7 +58,6 @@ uniform Material material;
 uniform DirLight dirLight;
 uniform PointLight pointLight;
 
-// NOVO — kontrola intenziteta
 uniform float dirLightIntensity;
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
