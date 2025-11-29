@@ -97,6 +97,64 @@ std::string OpenGL::get_compilation_error_message(uint32_t shader_id) {
     CHECKED_GL_CALL(glGetShaderInfoLog, shader_id, 512, nullptr, infoLog);
     return infoLog;
 }
+unsigned int OpenGL::create_msaa_fbo(unsigned int samples, int width, int height, unsigned int &colorBuffer, unsigned int &rboDepth) {
+    unsigned int fbo;
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    glGenTextures(1, &colorBuffer);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, colorBuffer);
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB, width, height, GL_TRUE);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, colorBuffer, 0);
+
+    glGenRenderbuffers(1, &rboDepth);
+    glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH24_STENCIL8, width, height);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        throw std::runtime_error("MSAA FBO is not complete!");
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    return fbo;
+
+}
+unsigned int OpenGL::create_resolve_fbo(int width, int height, unsigned int &textureColorBuffer) {
+    unsigned int fbo;
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    glGenTextures(1, &textureColorBuffer);
+    glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        throw std::runtime_error("Resolve FBO not complete!");
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    return fbo;
+}
+void OpenGL::blit_msaa_to_screen(unsigned int msaaFBO, unsigned int resolveFBO, int width, int height) {
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, msaaFBO);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, resolveFBO);
+
+    glBlitFramebuffer(
+        0, 0, width, height,
+        0, 0, width, height,
+        GL_COLOR_BUFFER_BIT,
+        GL_LINEAR
+    );
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
 
 std::string_view gl_call_error_description(GLenum error) {
     switch (error) {

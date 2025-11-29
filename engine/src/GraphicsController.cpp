@@ -11,6 +11,43 @@
 
 namespace engine::graphics {
 
+void GraphicsController::initialize_msaa(int samples) {
+    m_msaaSamples = samples;
+    auto platform = engine::core::Controller::get<platform::PlatformController>();
+    int width = platform->window()->width();
+    int height = platform->window()->height();
+
+    m_msaaFBO = OpenGL::create_msaa_fbo(
+        samples, width, height,
+        m_msaaColor, m_msaaDepth
+    );
+
+    m_resolveFBO = OpenGL::create_resolve_fbo(
+        width, height,
+        m_resolveColor
+    );
+}
+void GraphicsController::bind_msaa_fbo() {
+    glBindFramebuffer(GL_FRAMEBUFFER, m_msaaFBO);
+}
+void GraphicsController::resolve_msaa_and_present() {
+    auto platform = engine::core::Controller::get<platform::PlatformController>();
+    OpenGL::blit_msaa_to_screen(
+    m_msaaFBO,
+    m_resolveFBO,
+    platform->window()->width(),
+    platform->window()->height()
+);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, m_resolveFBO);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+    glBlitFramebuffer(
+        0, 0, platform->window()->width(), platform->window()->height(),
+        0, 0, platform->window()->width(), platform->window()->height(),
+        GL_COLOR_BUFFER_BIT,
+        GL_NEAREST
+    );
+}
 void GraphicsController::initialize() {
     const int opengl_initialized = gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     RG_GUARANTEE(opengl_initialized, "OpenGL failed to init!");

@@ -153,6 +153,12 @@ public:
         return m_ortho_params;
     }
 
+    void initialize_msaa(int samples);
+
+    void bind_msaa_fbo();
+
+    void resolve_msaa_and_present();
+
 private:
     /**
     * @brief Initializes OpenGL, ImGUI, and projection matrix params;
@@ -167,6 +173,15 @@ private:
     glm::mat4 m_projection_matrix{};
     Camera m_camera{};
     ImGuiContext *m_imgui_context{};
+
+    unsigned int m_msaaFBO = 0;
+    unsigned int m_msaaColor = 0;
+    unsigned int m_msaaDepth = 0;
+
+    unsigned int m_resolveFBO = 0;
+    unsigned int m_resolveColor = 0;
+
+    int m_msaaSamples = 4;
 };
 
 /**

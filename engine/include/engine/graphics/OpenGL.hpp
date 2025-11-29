@@ -141,6 +141,11 @@ public:
     */
     static std::string get_compilation_error_message(uint32_t shader_id);
 
+    static unsigned int create_msaa_fbo(unsigned int samples, int width, int height, unsigned int &colorBuffer, unsigned int &rboDepth);
+    static unsigned int create_resolve_fbo(int width, int height, unsigned int &textureColorBuffer);
+    static void blit_msaa_to_screen(unsigned int msaaFBO, unsigned int resolveFBO, int width, int height);
+
+
 private:
     /**
     * @brief Throws an engine::util::EngineError of type @ref engine::util::EngineError::Type::OpenGLError if an OpenGL error occurred. Used internally.
