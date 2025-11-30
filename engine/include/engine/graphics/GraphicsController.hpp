@@ -161,6 +161,19 @@ public:
 
     void resize_msaa();
 
+    void resolve_msaa_to_hdr();
+
+    void initialize_bloom();
+
+    void bind_hdr_fbo();
+
+    void unbind_hdr_fbo();
+
+    void apply_bloom();
+
+    void resize_bloom(int width, int height);
+
+
 private:
     /**
     * @brief Initializes OpenGL, ImGUI, and projection matrix params;
@@ -184,6 +197,28 @@ private:
     unsigned int m_resolveColor = 0;
 
     int m_msaaSamples = 4;
+
+    unsigned int m_hdrFBO = 0;
+    unsigned int m_hdrColorBuffer = 0; // floating point color buffer (GL_RGBA16F)
+    unsigned int m_hdrRBO = 0;
+
+    // ping-pong blur FBOs
+    unsigned int m_pingpongFBO[2] = {0,0};
+    unsigned int m_pingpongColorbuffers[2] = {0,0};
+
+    int m_bloomBlurIterations = 10; // broj blur iteracija (možeš podešavati)
+
+    // shader objekti (uzimamo ih iz ResourcesController)
+    engine::resources::Shader* m_bloomExtractShader = nullptr;
+    engine::resources::Shader* m_blurShader = nullptr;
+    engine::resources::Shader* m_bloomCombineShader = nullptr;
+
+    // quad helper
+    unsigned int m_quadVAO = 0;
+    unsigned int m_quadVBO = 0;
+
+    void render_quad();
+
 };
 
 /**

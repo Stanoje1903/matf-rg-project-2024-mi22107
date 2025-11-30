@@ -29,6 +29,7 @@ void MainController::initialize() {
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
     platform->register_platform_event_observer(std::make_unique<MainPlatformEventObserver>());
     graphics->initialize_msaa(4);
+    graphics->initialize_bloom();
     engine::graphics::OpenGL::enable_depth_testing();
 }
 
@@ -185,7 +186,8 @@ void MainController::draw() {
 void MainController::end_draw() {
     auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
-    graphics->resolve_msaa_and_present();
+    graphics->resolve_msaa_to_hdr();
+    graphics->apply_bloom();
     platform->swap_buffers();
 }
 

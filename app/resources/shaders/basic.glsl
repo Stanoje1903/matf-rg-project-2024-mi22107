@@ -1,5 +1,6 @@
 //#shader vertex
 #version 330 core
+
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoords;
@@ -22,12 +23,24 @@ void main()
 
 //#shader fragment
 #version 330 core
-out vec4 FragColor;
+
+layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 BrightColor;
+
 in vec2 TexCoords;
+
 uniform sampler2D texture_diffuse1;
 uniform vec3 emissionColor;
 
-void main() {
-    vec3 texColor = texture(texture_diffuse1, TexCoords).rgb;
-    FragColor = vec4(texColor + emissionColor, 1.0);
+void main()
+{
+    vec3 texColor = texture(texture_diffuse1, TexCoords).rgb + emissionColor;
+
+    FragColor = vec4(texColor, 1.0);
+
+    float brightness = dot(texColor, vec3(0.2126, 0.7152, 0.0722));
+    if (brightness > 1.0)
+    BrightColor = vec4(texColor, 1.0);
+    else
+    BrightColor = vec4(0.0);
 }
