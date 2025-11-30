@@ -2,8 +2,8 @@
 
 2022/107 - Nikola Stanojevic
 
-Two 3D-models, Saturn and Jupiter, on both implemented directional light and within themselves point light.
-Saturn rotates around Jupiter. Jupiter rotates around himself. 
+Three 3D-models, Saturn, Jupiter and Sun, on Saturn and Jupiter implemented directional light and point light coming from Sun.
+Saturn rotates around Jupiter. Jupiter rotates around itself, Sun rotates around itself. 
 
 ## Controls
 
@@ -33,7 +33,7 @@ ESC -> TERMINATING PROGRAM
 [ ] Parallax Mapping
 
 ### Group B:
-[ ] Bloom with the use of HDR  
+[X] Bloom with the use of HDR  
 [ ] Deferred Shading  
 [ ] Point Shadows  
 [ ] SSAO
