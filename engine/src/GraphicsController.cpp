@@ -192,10 +192,9 @@ void GraphicsController::initialize_msaa(int samples) {
     m_msaa_color = msaa.color_buffer;
     m_msaa_depth = msaa.rbo_depth;
 
-    m_resolve_fbo = OpenGL::create_resolve_fbo(
-        width, height,
-        m_resolve_color
-    );
+    MSAAFrameBufferObject resolve = OpenGL::create_resolve_fbo(width, height, m_resolve_color);
+    m_resolve_fbo   = resolve.fbo;
+    m_resolve_color = resolve.color_buffer;
 }
 void GraphicsController::bind_msaa_fbo() {
     glBindFramebuffer(GL_FRAMEBUFFER, m_msaa_fbo);
@@ -239,10 +238,9 @@ void GraphicsController::resize_msaa() {
     m_msaa_color = msaa.color_buffer;
     m_msaa_depth = msaa.rbo_depth;
 
-    m_resolve_fbo = OpenGL::create_resolve_fbo(
-        width, height,
-        m_resolve_color
-    );
+    MSAAFrameBufferObject resolve = OpenGL::create_resolve_fbo(width, height, m_resolve_color);
+    m_resolve_fbo   = resolve.fbo;
+    m_resolve_color = resolve.color_buffer;
 }
 
 void GraphicsController::resolve_msaa_to_hdr() {

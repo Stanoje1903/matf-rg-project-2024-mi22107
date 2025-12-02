@@ -227,8 +227,6 @@ void PlatformController::_platform_on_framebuffer_resize(int width, int height) 
     for (auto &observer: m_platform_event_observers) {
         observer->on_window_resize(width, height);
     }
-    auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
-    graphics->resize_msaa();
 }
 
 void PlatformController::_platform_on_window_close(GLFWwindow *window) {

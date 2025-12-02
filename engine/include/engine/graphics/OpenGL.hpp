@@ -152,7 +152,7 @@ public:
     static std::string get_compilation_error_message(uint32_t shader_id);
 
     static MSAAFrameBufferObject create_msaa_fbo(unsigned int samples, int width, int height);
-    static unsigned int create_resolve_fbo(int width, int height, unsigned int &texture_color_buffer);
+    static MSAAFrameBufferObject create_resolve_fbo(int width, int height, unsigned int &texture_color_buffer);
     static void blit_msaa_to_screen(unsigned int msaa_fbo, unsigned int resolve_fbo, int width, int height);
 
 private:
