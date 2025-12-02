@@ -28,6 +28,16 @@ class Skybox;
 #define CHECKED_GL_CALL(func, ...) engine::graphics::OpenGL::call(std::source_location::current(), func, __VA_ARGS__)
 
 namespace engine::graphics {
+
+/**
+ * @brief MSAA framebuffer object container.
+ */
+struct MSAAFrameBufferObject {
+    unsigned int fbo = 0;
+    unsigned int color_buffer = 0;
+    unsigned int rbo_depth = 0;
+};
+
 /**
 * @class OpenGL
 * @brief This class serves as the OpenGL interface for your app, since the engine doesn't directly link OpenGL to the app executable.
@@ -141,10 +151,9 @@ public:
     */
     static std::string get_compilation_error_message(uint32_t shader_id);
 
-    static unsigned int create_msaa_fbo(unsigned int samples, int width, int height, unsigned int &colorBuffer, unsigned int &rboDepth);
-    static unsigned int create_resolve_fbo(int width, int height, unsigned int &textureColorBuffer);
-    static void blit_msaa_to_screen(unsigned int msaaFBO, unsigned int resolveFBO, int width, int height);
-
+    static MSAAFrameBufferObject create_msaa_fbo(unsigned int samples, int width, int height);
+    static unsigned int create_resolve_fbo(int width, int height, unsigned int &texture_color_buffer);
+    static void blit_msaa_to_screen(unsigned int msaa_fbo, unsigned int resolve_fbo, int width, int height);
 
 private:
     /**

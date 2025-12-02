@@ -14,13 +14,13 @@ class MainController final : public engine::core::Controller {
 
     bool loop() override;
 
-    static void draw_jupiter();
+    void draw_jupiter();
 
-    static void draw_saturn();
+    void draw_saturn();
 
-    static void draw_sun();
+    void draw_sun();
 
-    static void draw_skybox();
+    void draw_skybox();
 
     void begin_draw() override;
 
@@ -32,10 +32,20 @@ class MainController final : public engine::core::Controller {
 
     static void update_camera();
 
+    struct SceneParams {
+        float dir_light_intensity = 1.0f;
+        bool saturn_visible = true;
+        bool saturn_toggle_requested = false;
+        float saturn_toggle_timer = 0.0f;
+    };
+
 public:
     std::string_view name() const override {
         return "app::MainController";
     }
+    SceneParams scene_params;
+
+    const SceneParams& get_scene_params() const { return scene_params; }
 };
 
 }// namespace app

@@ -97,62 +97,50 @@ std::string OpenGL::get_compilation_error_message(uint32_t shader_id) {
     CHECKED_GL_CALL(glGetShaderInfoLog, shader_id, 512, nullptr, infoLog);
     return infoLog;
 }
-unsigned int OpenGL::create_msaa_fbo(unsigned int samples, int width, int height, unsigned int &colorBuffer, unsigned int &rboDepth) {
-    unsigned int fbo;
-    glGenFramebuffers(1, &fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-    glGenTextures(1, &colorBuffer);
-    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, colorBuffer);
+MSAAFrameBufferObject OpenGL::create_msaa_fbo(unsigned int samples, int width, int height) {
+    MSAAFrameBufferObject msaa_fbo;
+    glGenFramebuffers(1, &msaa_fbo.fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, msaa_fbo.fbo);
+    glGenTextures(1, &msaa_fbo.color_buffer);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, msaa_fbo.color_buffer);
     glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB, width, height, GL_TRUE);
     glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, colorBuffer, 0);
-
-    glGenRenderbuffers(1, &rboDepth);
-    glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, msaa_fbo.color_buffer, 0);
+    glGenRenderbuffers(1, &msaa_fbo.rbo_depth);
+    glBindRenderbuffer(GL_RENDERBUFFER, msaa_fbo.rbo_depth);
     glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH24_STENCIL8, width, height);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
-
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, msaa_fbo.rbo_depth);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         throw std::runtime_error("MSAA FBO is not complete!");
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    return fbo;
-
+    return msaa_fbo;
 }
-unsigned int OpenGL::create_resolve_fbo(int width, int height, unsigned int &textureColorBuffer) {
+
+unsigned int OpenGL::create_resolve_fbo(int width, int height, unsigned int &texture_color_buffer) {
     unsigned int fbo;
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-    glGenTextures(1, &textureColorBuffer);
-    glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
+    glGenTextures(1, &texture_color_buffer);
+    glBindTexture(GL_TEXTURE_2D, texture_color_buffer);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0);
-
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_color_buffer, 0);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         throw std::runtime_error("Resolve FBO not complete!");
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return fbo;
 }
-void OpenGL::blit_msaa_to_screen(unsigned int msaaFBO, unsigned int resolveFBO, int width, int height) {
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, msaaFBO);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, resolveFBO);
 
-    glBlitFramebuffer(
-        0, 0, width, height,
-        0, 0, width, height,
-        GL_COLOR_BUFFER_BIT,
-        GL_LINEAR
-    );
-
+void OpenGL::blit_msaa_to_screen(unsigned int msaa_fbo, unsigned int resolve_fbo, int width, int height) {
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, msaa_fbo);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, resolve_fbo);
+    glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

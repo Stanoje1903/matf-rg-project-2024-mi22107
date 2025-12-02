@@ -2,13 +2,10 @@
 // Created by nikola on 23.11.25..
 //
 
-#include "../include//MyApp.hpp"
-
+#include "MyApp.hpp"
 #include "GuiController.hpp"
 #include "MainController.hpp"
 #include "spdlog/spdlog.h"
-
-#include <any>
 
 namespace app {
     void MyApp::app_setup() {

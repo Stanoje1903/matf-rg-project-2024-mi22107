@@ -1,10 +1,4 @@
-//
-// Created by nikola on 23.11.25..
-//
-
-#include "../include/MainController.hpp"
-
-#include "../../engine/test/app/include/app/GUIController.hpp"
+#include "MainController.hpp"
 #include "GuiController.hpp"
 #include "engine/graphics/GraphicsController.hpp"
 #include "engine/graphics/OpenGL.hpp"
@@ -34,18 +28,14 @@ void MainController::initialize() {
 }
 
 bool MainController::loop() {
-    auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
-    if (platform->key(engine::platform::KeyId::KEY_ESCAPE).is_down()) {
-        return false;
-    }
-    return true;
+    return !engine::core::Controller::get<engine::platform::PlatformController>()->key(engine::platform::KeyId::KEY_ESCAPE).is_down();
 }
 void MainController::draw_jupiter() {
     static float jupiterRotation = 0.0f;
     auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
-    engine::resources::Model *jupiter = resources->model("jupiter");
-    engine::resources::Shader *shader = resources->shader("multiple_lights");
+    engine::resources::Model* jupiter = resources->model("jupiter");
+    engine::resources::Shader* shader = resources->shader("multiple_lights");
     shader->use();
 
     float dt = engine::core::Controller::get<engine::platform::PlatformController>()->dt();
@@ -60,10 +50,10 @@ void MainController::draw_jupiter() {
     shader->set_vec3("viewPos", graphics->camera()->Position);
 
     shader->set_vec3("dirLight.direction", glm::vec3(-0.3f, -1.0f, -0.3f));
-    shader->set_vec3("dirLight.ambient", glm::vec3(0.05f));
-    shader->set_vec3("dirLight.diffuse", glm::vec3(1.0f));
-    shader->set_vec3("dirLight.specular", glm::vec3(0.5f));
-
+    float intensity = scene_params.dir_light_intensity;
+    shader->set_vec3("dirLight.ambient", glm::vec3(0.05f) * intensity);
+    shader->set_vec3("dirLight.diffuse", glm::vec3(1.0f) * intensity);
+    shader->set_vec3("dirLight.specular", glm::vec3(0.5f) * intensity);
     glm::vec3 sunPos = glm::vec3(0.0f, 0.0f, -10.0f);
     shader->set_vec3("pointLight.position", sunPos);
     shader->set_vec3("pointLight.ambient", glm::vec3(0.3f));
@@ -83,25 +73,21 @@ void MainController::draw_jupiter() {
 }
 
 void MainController::draw_saturn() {
+    if (!scene_params.saturn_visible) return;
     static float saturnRotation = 0.0f;
     auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
-    auto gui = engine::core::Controller::get<GuiController>();
-    if (!gui->getSaturnVisible())
-        return;
-
-    engine::resources::Model *saturn = resources->model("saturn");
-    engine::resources::Shader *shader = resources->shader("multiple_lights");
+    engine::resources::Model* saturn = resources->model("saturn");
+    engine::resources::Shader* shader = resources->shader("multiple_lights");
     shader->use();
-
-    shader->set_float("dirLightIntensity", gui->getDirLightIntensity());
+    float intensity = scene_params.dir_light_intensity;
+    shader->set_float("dirLightIntensity", intensity);
     shader->set_vec3("viewPos", graphics->camera()->Position);
 
     shader->set_vec3("dirLight.direction", glm::vec3(-0.3f, -1.0f, -0.3f));
-    shader->set_vec3("dirLight.ambient", glm::vec3(0.02f));
-    shader->set_vec3("dirLight.diffuse", glm::vec3(0.7f));
-    shader->set_vec3("dirLight.specular", glm::vec3(1.0f));
-
+    shader->set_vec3("dirLight.ambient", glm::vec3(0.02f) * intensity);
+    shader->set_vec3("dirLight.diffuse", glm::vec3(0.7f) * intensity);
+    shader->set_vec3("dirLight.specular", glm::vec3(1.0f) * intensity);
     glm::vec3 sunPos = glm::vec3(0.0f, 0.0f, -10.0f);
     shader->set_vec3("pointLight.position", sunPos);
     shader->set_vec3("pointLight.ambient", glm::vec3(0.3f));
@@ -138,9 +124,8 @@ void MainController::draw_sun() {
     auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
     auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
-
-    engine::resources::Model *sun = resources->model("sun");
-    engine::resources::Shader *shader = resources->shader("basic");
+    engine::resources::Model* sun = resources->model("sun");
+    engine::resources::Shader* shader = resources->shader("basic");
     shader->use();
 
     float dt = platform->dt();
@@ -160,7 +145,6 @@ void MainController::draw_sun() {
 
     sun->draw(shader);
 }
-
 
 void MainController::draw_skybox() {
     auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
@@ -192,52 +176,56 @@ void MainController::end_draw() {
 }
 
 void MainController::update() {
-    update_camera();
-
     auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
     auto gui = engine::core::Controller::get<GuiController>();
+    auto& params = scene_params;
+
+    if (gui->is_enabled()) {
+        if (platform->key(engine::platform::KeyId::KEY_Q).state() == engine::platform::Key::State::JustPressed) {
+            params.dir_light_intensity += 0.1f;
+            if (params.dir_light_intensity > 5.0f) params.dir_light_intensity = 5.0f;
+        }
+        if (platform->key(engine::platform::KeyId::KEY_E).state() == engine::platform::Key::State::JustPressed) {
+            params.dir_light_intensity -= 0.1f;
+            if (params.dir_light_intensity < 0.0f) params.dir_light_intensity = 0.0f;
+        }
+    }
 
     if (platform->key(engine::platform::KeyId::KEY_R).state() == engine::platform::Key::State::JustPressed) {
-        if (!gui->getSaturnToggleRequested()) {
-            gui->setSaturnToggleRequested(true);
-            gui->setSaturnToggleTimer(0.0f);
+        if (!params.saturn_toggle_requested) {
+            params.saturn_toggle_requested = true;
+            params.saturn_toggle_timer = 0.0f;
         }
     }
 
-    if (gui->getSaturnToggleRequested()) {
+    if (params.saturn_toggle_requested) {
         float dt = platform->dt();
-        gui->setSaturnToggleTimer(gui->getSaturnToggleTimer() + dt);
-
-        if (gui->getSaturnToggleTimer() >= 3.0f) {
-            gui->setSaturnVisible(!gui->getSaturnVisible());
-            gui->setSaturnToggleRequested(false);
-            gui->setSaturnToggleTimer(0.0f);
+        params.saturn_toggle_timer += dt;
+        if (params.saturn_toggle_timer >= 3.0f) {
+            params.saturn_visible = !params.saturn_visible;
+            params.saturn_toggle_requested = false;
+            params.saturn_toggle_timer = 0.0f;
         }
     }
-}
 
+    update_camera();
+}
 
 void MainController::update_camera() {
-    auto gui_controller = engine::core::Controller::get<GuiController>();
-    if (gui_controller->is_enabled()) {
-        return;
-    }
-    auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
     auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
+    auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
+    auto gui_controller = engine::core::Controller::get<GuiController>();
+    if (gui_controller->is_enabled()) return;
     auto camera = graphics->camera();
     float dt = platform->dt();
-    if (platform->key(engine::platform::KeyId::KEY_W).is_down()) {
+    if (platform->key(engine::platform::KeyId::KEY_W).is_down())
         camera->move_camera(engine::graphics::Camera::Movement::FORWARD, dt);
-    }
-    if (platform->key(engine::platform::KeyId::KEY_A).is_down()) {
+    if (platform->key(engine::platform::KeyId::KEY_A).is_down())
         camera->move_camera(engine::graphics::Camera::Movement::LEFT, dt);
-    }
-    if (platform->key(engine::platform::KeyId::KEY_S).is_down()) {
+    if (platform->key(engine::platform::KeyId::KEY_S).is_down())
         camera->move_camera(engine::graphics::Camera::Movement::BACKWARD, dt);
-    }
-    if (platform->key(engine::platform::KeyId::KEY_D).is_down()) {
+    if (platform->key(engine::platform::KeyId::KEY_D).is_down())
         camera->move_camera(engine::graphics::Camera::Movement::RIGHT, dt);
-    }
 }
 
-}// namespace app
+} // namespace app

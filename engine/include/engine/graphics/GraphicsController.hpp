@@ -153,24 +153,57 @@ public:
         return m_ortho_params;
     }
 
+    /**
+ * @brief Initializes MSAA with the given number of samples.
+ * @param samples Number of samples for MSAA.
+ */
     void initialize_msaa(int samples);
 
+    /**
+     * @brief Binds the MSAA framebuffer object for rendering.
+     */
     void bind_msaa_fbo();
 
+    /**
+     * @brief Resolves MSAA buffer and presents it to the screen.
+     */
     void resolve_msaa_and_present();
 
+    /**
+     * @brief Resizes the MSAA buffers when window size changes.
+     */
     void resize_msaa();
 
+    /**
+     * @brief Resolves MSAA buffer to HDR framebuffer.
+     */
     void resolve_msaa_to_hdr();
 
+    /**
+     * @brief Initializes bloom effect resources.
+     */
     void initialize_bloom();
 
+    /**
+     * @brief Binds the HDR framebuffer for rendering.
+     */
     void bind_hdr_fbo();
 
+    /**
+     * @brief Unbinds the HDR framebuffer, returning to default framebuffer.
+     */
     void unbind_hdr_fbo();
 
+    /**
+     * @brief Applies bloom effect to the current HDR framebuffer.
+     */
     void apply_bloom();
 
+    /**
+     * @brief Resizes the bloom textures when the window size changes.
+     * @param width New width of the framebuffer.
+     * @param height New height of the framebuffer.
+     */
     void resize_bloom(int width, int height);
 
 
@@ -189,33 +222,30 @@ private:
     Camera m_camera{};
     ImGuiContext *m_imgui_context{};
 
-    unsigned int m_msaaFBO = 0;
-    unsigned int m_msaaColor = 0;
-    unsigned int m_msaaDepth = 0;
+    unsigned int m_msaa_fbo = 0;
+    unsigned int m_msaa_color = 0;
+    unsigned int m_msaa_depth = 0;
 
-    unsigned int m_resolveFBO = 0;
-    unsigned int m_resolveColor = 0;
+    unsigned int m_resolve_fbo = 0;
+    unsigned int m_resolve_color = 0;
 
-    int m_msaaSamples = 4;
+    int m_msaa_samples = 4;
 
-    unsigned int m_hdrFBO = 0;
-    unsigned int m_hdrColorBuffer = 0; // floating point color buffer (GL_RGBA16F)
-    unsigned int m_hdrRBO = 0;
+    unsigned int m_hdr_fbo = 0;
+    unsigned int m_hdr_color_buffer = 0;
+    unsigned int m_hdr_rbo = 0;
 
-    // ping-pong blur FBOs
-    unsigned int m_pingpongFBO[2] = {0,0};
-    unsigned int m_pingpongColorbuffers[2] = {0,0};
+    unsigned int m_pingpong_fbo[2] = {0,0};
+    unsigned int m_pingpong_color_buffers[2] = {0,0};
 
-    int m_bloomBlurIterations = 10; // broj blur iteracija (možeš podešavati)
+    int m_bloom_blur_iterations = 10;
 
-    // shader objekti (uzimamo ih iz ResourcesController)
-    engine::resources::Shader* m_bloomExtractShader = nullptr;
-    engine::resources::Shader* m_blurShader = nullptr;
-    engine::resources::Shader* m_bloomCombineShader = nullptr;
+    engine::resources::Shader* m_bloom_extract_shader = nullptr;
+    engine::resources::Shader* m_blur_shader = nullptr;
+    engine::resources::Shader* m_bloom_combine_shader = nullptr;
 
-    // quad helper
-    unsigned int m_quadVAO = 0;
-    unsigned int m_quadVBO = 0;
+    unsigned int m_quad_vao = 0;
+    unsigned int m_quad_vbo = 0;
 
     void render_quad();
 

@@ -23,7 +23,7 @@ ESC -> TERMINATING PROGRAM
 
 [X] Model with lighting
 [X] Two types of lighting with customizable colors and movement through GUI or ACTIONS
-[X] {ACTION_X} --- AFTER_M_SECONDS---Triggers---> {EVENT_A} ---> AFTER_N_SECONDS---Triggers---> {EVENT_B}
+[X] R pressed --- after 3 seconds--- triggers---> Saturn changes transparency
 
 ### Group A:
 
