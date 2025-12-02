@@ -1,7 +1,9 @@
 
-#include <imgui_impl_glfw.h>
+#include "engine/graphics/GraphicsController.hpp"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <imgui_impl_glfw.h>
 
 #include <engine/platform/PlatformController.hpp>
 #include <engine/util/Utils.hpp>
@@ -10,6 +12,9 @@
 #include <utility>
 #include <engine/util/Configuration.hpp>
 
+namespace engine::graphics {
+class GraphicsController;
+}
 namespace engine::platform {
 static std::array<std::string_view, KEY_COUNT> g_engine_key_to_string;
 static std::array<int, KEY_COUNT> g_engine_to_glfw_key;

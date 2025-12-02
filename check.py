@@ -14,6 +14,7 @@ Exit Codes:
 - 0: No violations found.
 - 1: Violations detected.
 """
+from __future__ import annotations
 
 import sys
 import os

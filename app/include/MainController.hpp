@@ -1,0 +1,53 @@
+//
+// Created by nikola on 23.11.25..
+//
+
+#ifndef MATF_RG_PROJECT_MAINCONTROLLER_HPP
+#define MATF_RG_PROJECT_MAINCONTROLLER_HPP
+#include "engine/core/Controller.hpp"
+
+namespace app {
+
+class MainController final : public engine::core::Controller {
+
+    void initialize() override;
+
+    bool loop() override;
+
+    void draw_jupiter();
+
+    void draw_saturn();
+
+    void draw_sun();
+
+    void draw_skybox();
+
+    void begin_draw() override;
+
+    void draw() override;
+
+    void end_draw() override;
+
+    void update() override;
+
+    static void update_camera();
+
+    struct SceneParams {
+        float dir_light_intensity = 1.0f;
+        bool saturn_visible = true;
+        bool saturn_toggle_requested = false;
+        float saturn_toggle_timer = 0.0f;
+    };
+
+public:
+    std::string_view name() const override {
+        return "app::MainController";
+    }
+    SceneParams scene_params;
+
+    const SceneParams& get_scene_params() const { return scene_params; }
+};
+
+}// namespace app
+
+#endif//MATF_RG_PROJECT_MAINCONTROLLER_HPP
